@@ -20,6 +20,7 @@ xhr.onload = function() {
             <img class='product-photo' src='${p.photo}' alt='${p.name}'>
             <p class='product-price'><b>Price: </b>${p.price}BYN</p>
             <p class='product-description'><b>Description: </b>${p.desc}</p>
+            <a href="userProfile.html?id=${p.author_id}">Seller profile</a>
             <button onclick="addProductToCart(${p.id})">Buy</button>
         `;
 
@@ -28,3 +29,63 @@ xhr.onload = function() {
 }
 
 xhr.send();
+
+//--------------------------------------------------
+
+let cartProd = document.getElementById('cart-products');
+
+let cart = [];
+
+if (localStorage.getItem('cart')) {
+    cart = JSON.parse(localStorage.getItem('cart'));
+
+    drawCartProducts();
+}
+
+function addProductToCart(id) {
+    let product = productsArray.find(function(p) {
+        return p.id == id;
+    })
+
+    cart.push(product);
+
+    drawCartProducts();
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    document.getElementById('cart-button').classList.add('active');
+    setTimeout(function() {
+        document.getElementById('cart-button').classList.remove('active');
+    }, 500);
+}
+
+function drawCartProducts() {
+    if (cart.length === 0) return cartProd.innerHTML = 'Cart is empty';
+
+    cartProd.innerHTML = null;
+    let sum = 0;
+
+    cart.forEach(function(p) {
+        cartProd.innerHTML += `
+            <p><img src="${p.photo}"> ${p.name} | ${p.price}$</p>
+            <hr>
+        `;
+        sum += p.price;
+    })
+
+    cartProd.innerHTML += `
+        <p>Total Price: ${sum}$</p>
+        <button onclick="buyAll()">Buy All</button>
+    `;
+}
+
+function buyAll() {
+    console.log("buyall");
+    cart = [];
+    cartProd.innerHTML = 'Money was withdraw from your credit card';
+    localStorage.setItem('cart', '[]');
+}
+
+function openCart() {
+    cartProd.classList.toggle('hide');
+}
